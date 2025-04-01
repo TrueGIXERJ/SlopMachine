@@ -6,6 +6,7 @@ from True_Tiktok_Uploader.upload import upload_video
 from TrueGIXERJ_Utils.files import sanitise
 from TrueGIXERJ_Utils.logger import logger
 import config
+from datetime import datetime, timedelta
 
 def load_used_videos():
     """
@@ -14,8 +15,19 @@ def load_used_videos():
     :return: a list of video URLs
     """
     if os.path.exists(config.STORAGE_FILE):
+        logger.info("Loading used videos...")
         with open(config.STORAGE_FILE, "r") as f:
-            return json.load(f)
+            try:
+                used_videos = json.load(f)
+            except json.JSONDecodeError:
+                return []
+        cutoff_time = datetime.now() - timedelta(days=7)
+        logger.info(f"Pruning old entries in {config.STORAGE_FILE}")
+        used_videos = {
+            url: timestamp for url, timestamp in used_videos.items()
+            if datetime.fromisoformat(timestamp) > cutoff_time
+        }
+        return used_videos
     else:
         return []
     
@@ -25,6 +37,7 @@ def save_used_videos(used_videos):
 
     :param used_videos: a list of video URLs which have been used
     """
+    logger.info(f"Saving video to {config.STORAGE_FILE}")
     with open(config.STORAGE_FILE, "w") as f:
         json.dump(used_videos, f, indent=4)
 
@@ -83,10 +96,10 @@ def main():
     description = f"{safe_title} - u/{author} - {config.HASHTAGS}"
     upload_video(video_path, description, 'cookies.txt', True)
     
-    used_videos.append(url)
+    used_videos[url] = datetime.now().isoformat()
     save_used_videos(used_videos)
 
-    os.remove(f'{safe_title}.mp4')
+    os.remove(video_path)
     logger.success('File Deleted.')
 
 if __name__ == "__main__":
