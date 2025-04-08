@@ -48,7 +48,12 @@ def get_top_video(used_videos):
     :param used_videos: a list of video URLs which have been used
     :return: a dictionary containing post data, or None if there is no new videos found
     """
-    response = requests.get(config.SUBREDDIT_URL, headers={"User-Agent": "Mozilla/5.0"})
+    try:
+        response = requests.get(config.SUBREDDIT_URL, headers={"User-Agent": "Mozilla/5.0"})
+    except Exception as e:
+        logger.error("Couldn't reach Reddit.")
+        logger.error(e)
+        return None
     if response.status_code != 200:
         logger.error("Failed to fetch subreddit data.")
         return None
