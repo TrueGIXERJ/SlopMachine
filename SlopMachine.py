@@ -8,21 +8,23 @@ from TrueGIXERJ_Utils.logger import logger
 import config
 from datetime import datetime, timedelta
 
+STORAGE_FILE = "used_videos.json"
+
 def load_used_videos():
     """
     Loads the list of previously used video URLs from the storage file defined in config.
 
     :return: a list of video URLs
     """
-    if os.path.exists(config.STORAGE_FILE):
+    if os.path.exists(STORAGE_FILE):
         logger.info("Loading used videos...")
-        with open(config.STORAGE_FILE, "r") as f:
+        with open(STORAGE_FILE, "r") as f:
             try:
                 used_videos = json.load(f)
             except json.JSONDecodeError:
                 return []
         cutoff_time = datetime.now() - timedelta(days=7)
-        logger.info(f"Pruning old entries in {config.STORAGE_FILE}")
+        logger.info(f"Pruning old entries in {STORAGE_FILE}")
         used_videos = {
             url: timestamp for url, timestamp in used_videos.items()
             if datetime.fromisoformat(timestamp) > cutoff_time
@@ -37,8 +39,8 @@ def save_used_videos(used_videos):
 
     :param used_videos: a list of video URLs which have been used
     """
-    logger.info(f"Saving video to {config.STORAGE_FILE}")
-    with open(config.STORAGE_FILE, "w") as f:
+    logger.info(f"Saving video to {STORAGE_FILE}")
+    with open(STORAGE_FILE, "w") as f:
         json.dump(used_videos, f, indent=4)
 
 def get_top_video(used_videos):
