@@ -5,9 +5,16 @@ import os
 from True_Tiktok_Uploader.upload import upload_video
 from TrueGIXERJ_Utils.files import sanitise
 from TrueGIXERJ_Utils.logger import logger
-import config
 from datetime import datetime, timedelta
+import os
+import json
 
+with open('config.json', 'r') as f:
+    _config = json.load(f)
+
+SUBREDDIT = _config["SUBREDDIT"]
+SUBREDDIT_URL = f"https://www.reddit.com/{SUBREDDIT}/hot.json?limit=25"
+HASHTAGS = _config["HASHTAGS"]
 STORAGE_FILE = "used_videos.json"
 
 def load_used_videos():
@@ -51,7 +58,7 @@ def get_top_video(used_videos):
     :return: a dictionary containing post data, or None if there is no new videos found
     """
     try:
-        response = requests.get(config.SUBREDDIT_URL, headers={"User-Agent": "Mozilla/5.0"})
+        response = requests.get(SUBREDDIT_URL, headers={"User-Agent": "Mozilla/5.0"})
     except Exception as e:
         logger.error("Couldn't reach Reddit.")
         logger.error(e)
@@ -86,6 +93,7 @@ def main():
     Main function.
     Finds a new video, downloads it, uploads to tiktok, and then logs the used video.
     """
+	
     used_videos = load_used_videos()
     post_data = get_top_video(used_videos)
     
@@ -100,7 +108,7 @@ def main():
 
     download_video(url, video_path)
 
-    description = f"{safe_title} - u/{author} - {config.HASHTAGS}"
+    description = f"{safe_title} - u/{author} - {HASHTAGS}"
     upload_video(video_path, description, 'cookies.txt', True)
     
     used_videos[url] = datetime.now().isoformat()
