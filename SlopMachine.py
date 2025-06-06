@@ -29,7 +29,7 @@ def load_used_videos():
             try:
                 used_videos = json.load(f)
             except json.JSONDecodeError:
-                return []
+                return {}
         cutoff_time = datetime.now() - timedelta(days=7)
         logger.info(f"Pruning old entries in {STORAGE_FILE}")
         used_videos = {
@@ -38,7 +38,7 @@ def load_used_videos():
         }
         return used_videos
     else:
-        return []
+        return {}
     
 def save_used_videos(used_videos):
     """
