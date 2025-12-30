@@ -58,7 +58,8 @@ def get_top_video(used_videos):
     :return: a dictionary containing post data, or None if there is no new videos found
     """
     try:
-        response = requests.get(SUBREDDIT_URL, headers={"User-Agent": "Mozilla/5.0"})
+        response = requests.get(SUBREDDIT_URL, headers={"User-Agent": "script:reddit-tiktok-downloader:u/truegixerj"})
+        logger.info(response.status_code)
     except Exception as e:
         logger.error("Couldn't reach Reddit.")
         logger.error(e)
@@ -83,7 +84,11 @@ def download_video(url, output_path):
     """
     ydl_opts = {
         "outtmpl": output_path,
-        "quiet": True
+        "quiet": True,
+        "http_headers": {
+            "User-Agent": "script:reddit-tiktok-downloader:u/truegixerj",
+            "Referer": "https://www.reddit.com/"
+        }
     }
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         ydl.download([url])
@@ -101,7 +106,9 @@ def main():
         logger.error("No new videos found.")
         return
 
-    title, author, url = post_data['title'], post_data['author'], post_data['url']
+    title = post_data['title']
+    author = post_data['author']
+    url = f"https://www.reddit.com{post_data['permalink']}"
     logger.info(f"Downloading: {title} by {author}")
     safe_title = sanitise(title)[:100]
     video_path = f'{safe_title}.mp4'
@@ -109,7 +116,7 @@ def main():
     download_video(url, video_path)
 
     description = f"{safe_title} - u/{author} - {HASHTAGS}"
-    upload_video(video_path, description, 'cookies.txt', True)
+    upload_video(video_path, description, 'cookies.txt', False)
     
     used_videos[url] = datetime.now().isoformat()
     save_used_videos(used_videos)
