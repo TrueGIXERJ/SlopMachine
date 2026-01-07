@@ -59,7 +59,6 @@ def get_top_video(used_videos):
     """
     try:
         response = requests.get(SUBREDDIT_URL, headers={"User-Agent": "script:reddit-tiktok-downloader:u/truegixerj"})
-        logger.info(response.status_code)
     except Exception as e:
         logger.error("Couldn't reach Reddit.")
         logger.error(e)
