@@ -116,7 +116,7 @@ def main():
     download_video(url, video_path)
 
     description = f"{safe_title} - u/{author} - {HASHTAGS}"
-    upload_video(video_path, description, 'cookies.txt', False)
+    upload_video(video_path, description, 'cookies.txt', True)
     
     used_videos[url] = datetime.now().isoformat()
     save_used_videos(used_videos)
