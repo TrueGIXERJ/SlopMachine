@@ -70,7 +70,7 @@ def get_top_video(used_videos):
     data = response.json()
     for post in data['data']['children']:
         post_data = post['data']
-        if post_data['is_video'] and post_data['url'] not in used_videos:
+        if post_data['is_video'] and f"https://www.reddit.com{post_data['permalink']}" not in used_videos:
             return post_data
     return None
 
